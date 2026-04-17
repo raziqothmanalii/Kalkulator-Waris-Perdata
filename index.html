@@ -2,173 +2,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kalkulator Waris Perdata - Adien</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>WarisSmart - Adien Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0f0f10; --card-color: #1c1c1e; --accent-gold: #ffd700;
-            --accent-blue: #4e95ff; --text-main: #e3e3e3; --text-dim: #b4b4b4;
-            --border: #333333; --island-bg: #2f2f30;
+            --bg: #0b0b0c; --card: #161618; --accent: #4e95ff; --gold: #ffd700;
+            --text: #ffffff; --text-dim: #a1a1aa; --border: #27272a;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; }
+
+        .app-container { width: 100%; max-width: 500px; animation: fadeIn 0.8s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Dynamic Island Style */
+        .island { 
+            background: #1c1c1e; border-radius: 100px; padding: 8px 20px; width: fit-content; 
+            margin: 0 auto 30px; border: 1px solid var(--border); font-size: 11px; 
+            font-weight: 700; letter-spacing: 1px; color: var(--accent); transition: 0.5s;
+        }
+
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 28px; padding: 25px; margin-bottom: 20px; }
+        h1 { font-size: 22px; margin-bottom: 5px; text-align: center; }
+        .sub-header { font-size: 12px; color: var(--text-dim); text-align: center; margin-bottom: 30px; text-transform: uppercase; }
+
+        .group-label { font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .group-label::after { content: ""; height: 1px; background: var(--border); flex-grow: 1; }
+
+        .field { margin-bottom: 18px; position: relative; }
+        label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 8px; }
+        input { 
+            width: 100%; background: #000; border: 1px solid var(--border); border-radius: 14px; 
+            padding: 14px; color: white; font-size: 15px; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(78,149,255,0.2); }
+
+        .hint-icon { 
+            display: inline-flex; width: 16px; height: 16px; background: #333; border-radius: 50%;
+            font-size: 10px; align-items: center; justify-content: center; cursor: pointer;
+            margin-left: 6px; color: var(--gold); border: 1px solid var(--gold);
+        }
+
+        /* Checkbox Styling */
+        .check-container { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; cursor: pointer; }
+        .check-container input { width: 20px; height: 20px; cursor: pointer; accent-color: var(--accent); }
+        .check-container span { font-size: 14px; font-weight: 600; }
+
+        .input-block { display: none; margin-left: 32px; margin-top: 10px; border-left: 1px solid var(--border); padding-left: 15px; }
+        .disabled { opacity: 0.2; pointer-events: none; }
+
+        .btn { 
+            width: 100%; padding: 18px; border-radius: 100px; border: none; font-weight: 700; 
+            cursor: pointer; transition: 0.3s; font-size: 15px;
+        }
+        .btn-blue { background: var(--accent); color: white; margin-top: 10px; }
+        .btn-gold { background: transparent; border: 1px solid var(--gold); color: var(--gold); margin-top: 10px; }
+
+        /* Uraian Box */
+        .result-box { 
+            display: none; background: rgba(78,149,255,0.05); border: 1px solid rgba(78,149,255,0.2);
+            padding: 20px; border-radius: 20px; margin-top: 25px; line-height: 1.6;
+        }
+        .res-title { font-weight: 700; color: var(--gold); margin-bottom: 10px; display: block; }
         
-        .island { width: 140px; height: 32px; background: var(--island-bg); border-radius: 100px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: 700; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-        .island-active { width: 280px; height: 40px; background: linear-gradient(90deg, #b388ff, #4e95ff); }
-
-        .container { background: var(--card-color); padding: 25px; border-radius: 35px; width: 92%; max-width: 480px; height: 90vh; border: 1px solid var(--border); display: flex; flex-direction: column; position: relative; }
-        .scroll-area { overflow-y: auto; flex-grow: 1; padding-right: 5px; }
-        .scroll-area::-webkit-scrollbar { width: 4px; }
-        .scroll-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-
-        .field { margin-bottom: 15px; }
-        label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; display: block; margin-bottom: 6px; letter-spacing: 0.5px; }
-        input { width: 100%; padding: 12px; border: 1px solid #444; border-radius: 12px; background: #000; color: white; outline: none; font-size: 15px; }
-
-        .section-title { font-size: 12px; font-weight: 700; color: var(--accent-blue); margin: 15px 0 10px; display: flex; align-items: center; gap: 8px; }
-        .grid-kloving { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 20px; border: 1px solid #333; }
-
-        .btn-calc { width: 100%; padding: 16px; background: #fff; color: #000; border: none; border-radius: 100px; font-weight: 800; cursor: pointer; margin-top: 15px; transition: 0.3s; }
-        .btn-calc:hover { background: var(--accent-gold); }
-
-        .results { margin-top: 20px; display: none; animation: slideUp 0.5s ease; }
-        .uraian-card { background: rgba(78, 149, 255, 0.05); padding: 20px; border-radius: 20px; border: 1px solid rgba(78,149,255,0.2); font-size: 13px; line-height: 1.6; }
-        .highlight { color: var(--accent-gold); font-weight: 700; }
-        
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        /* Modal */
+        .modal-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 1000;
+            display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-card { background: var(--card); border: 1px solid var(--border); padding: 25px; border-radius: 28px; width: 100%; max-width: 400px; }
     </style>
 </head>
 <body>
 
-    <div id="welcome" class="overlay">
-        <div style="background: var(--card-color); padding: 30px; border-radius: 30px; text-align: center; max-width: 350px; border: 1px solid #333;">
-            <h2 style="color: var(--accent-gold);">Waris Expert V3</h2>
-            <p style="font-size: 14px; color: var(--text-dim); margin: 15px 0;">Sistem Logika Kloving Aktif.<br>Kalkulasi Golongan I - IV Terintegrasi.</p>
-            <button class="btn-calc" onclick="document.getElementById('welcome').style.display='none'">Mulai Hitung</button>
-        </div>
+<div class="modal-overlay" id="modal">
+    <div class="modal-card">
+        <h3 id="modalTitle" style="color:var(--gold); margin-bottom:15px;"></h3>
+        <div id="modalContent" style="font-size:13px; color:var(--text-dim); line-height:1.6;"></div>
+        <button class="btn btn-blue" style="margin-top:20px; padding:12px;" onclick="closeModal()">Tutup</button>
     </div>
+</div>
 
-    <div class="container">
-        <div class="island" id="island">WARIS LOGIC</div>
+<div class="app-container">
+    <div class="island" id="island">WARIS SMART V4</div>
+    <h1>Waris Calculator</h1>
+    <p class="sub-header">Berdasarkan KUHPerdata (BW)</p>
+
+    <div class="card">
+        <div class="group-label">STEP 1: HARTA PENINGGALAN</div>
+        <div class="field">
+            <label>Input Harta Bersih <span class="hint-icon" onclick="openHartaInfo()">?</span></label>
+            <input type="text" id="dispHarta" placeholder="Rp 0" oninput="fmtRp(this, 'rawHarta')">
+            <input type="hidden" id="rawHarta">
+        </div>
+        <button class="btn btn-gold" onclick="toggleCalcHarta()">Atau Hitung Harta Bersih ?</button>
         
-        <div class="scroll-area">
+        <div id="calcHartaBox" style="display:none; margin-top:20px; padding-top:20px; border-top:1px dashed var(--border);">
             <div class="field">
-                <label>Harta Peninggalan Bersih (Rp)</label>
-                <input type="text" id="dispHarta" placeholder="Rp 0" oninput="fmtRp(this)">
-                <input type="hidden" id="rawHarta">
+                <label>Total Seluruh Aset (Rumah/Uang/Dsb)</label>
+                <input type="text" id="dispAset" oninput="fmtRp(this, 'rawAset')">
+                <input type="hidden" id="rawAset">
             </div>
-
-            <div class="section-title"><span>—</span> KELUARGA INTI / GOL II</div>
-            <div class="grid-kloving" style="grid-template-columns: 1fr;">
-                <input type="number" id="valSI" placeholder="Istri / Suami (Hidup Terlama)" style="margin-bottom:8px">
-                <input type="number" id="valAnak" placeholder="Jumlah Anak Kandung" style="margin-bottom:8px">
-                <div style="display: flex; gap: 10px;">
-                    <input type="number" id="valOT" placeholder="Jml Orang Tua">
-                    <input type="number" id="valSK" placeholder="Jml Saudara">
-                </div>
+            <div class="field">
+                <label>Total Hutang/Biaya Makam</label>
+                <input type="text" id="dispHutang" oninput="fmtRp(this, 'rawHutang')">
+                <input type="hidden" id="rawHutang">
             </div>
-
-            <div class="section-title"><span>—</span> SISTEM KLOVING (GOL III & IV)</div>
-            <div class="grid-kloving">
-                <div>
-                    <label>Garis Ayah</label>
-                    <input type="number" id="aG3" placeholder="Kakek/Nenek" style="margin-bottom:5px">
-                    <input type="number" id="aG4" placeholder="Paman/Bibi">
-                </div>
-                <div>
-                    <label>Garis Ibu</label>
-                    <input type="number" id="iG3" placeholder="Kakek/Nenek" style="margin-bottom:5px">
-                    <input type="number" id="iG4" placeholder="Paman/Bibi">
-                </div>
+            <div class="check-container">
+                <input type="checkbox" id="isGonoGini">
+                <span>Harta Bersama Pasangan (Gono-Gini)</span>
             </div>
-
-            <button class="btn-calc" onclick="calculate()">HITUNG ANALISA HUKUM</button>
-
-            <div id="resArea" class="results">
-                <div class="uraian-card" id="uraian"></div>
-            </div>
-            <div style="height: 30px;"></div>
+            <button class="btn btn-blue" onclick="setHartaBersih()">Terapkan ke Warisan</button>
         </div>
     </div>
 
-    <script>
-        function fmtRp(e) {
-            let v = e.value.replace(/[^,\d]/g, '');
-            document.getElementById('rawHarta').value = v;
-            if (v) e.value = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(v);
+    <div class="card">
+        <div class="group-label">STEP 2: AHLI WARIS</div>
+        
+        <div id="box1">
+            <label class="check-container">
+                <input type="checkbox" id="check1" onchange="syncUI()">
+                <span>Ada Pasangan/Anak (Gol I)</span>
+            </label>
+            <div class="input-block" id="in1">
+                <input type="number" id="si1" placeholder="Jml Suami/Istri" style="margin-bottom:8px">
+                <input type="number" id="ak1" placeholder="Jml Anak Kandung">
+            </div>
+        </div>
+
+        <div id="box2">
+            <label class="check-container">
+                <input type="checkbox" id="check2" onchange="syncUI()">
+                <span>Ada Ortu/Saudara (Gol II)</span>
+            </label>
+            <div class="input-block" id="in2">
+                <input type="number" id="ot2" placeholder="Jml Orang Tua (Maks 2)" style="margin-bottom:8px">
+                <input type="number" id="sk2" placeholder="Jml Saudara Kandung">
+            </div>
+        </div>
+
+        <div id="boxKloving">
+            <label class="check-container">
+                <input type="checkbox" id="checkK" onchange="syncUI()">
+                <span>Garis Leluhur/Samping (Gol III & IV)</span>
+            </label>
+            <div class="input-block" id="inK">
+                <p style="font-size:10px; color:var(--accent); margin-bottom:10px;">SISTEM KLOVING (PEMBELAHAN AYAH/IBU)</p>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div>
+                        <label>Sisi Ayah</label>
+                        <input type="number" id="a3" placeholder="G3" style="margin-bottom:5px">
+                        <input type="number" id="a4" placeholder="G4">
+                    </div>
+                    <div>
+                        <label>Sisi Ibu</label>
+                        <input type="number" id="i3" placeholder="G3" style="margin-bottom:5px">
+                        <input type="number" id="i4" placeholder="G4">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn btn-blue" onclick="mainCalculate()" style="font-size:16px;">HITUNG WARISAN</button>
+
+    <div class="result-box" id="resBox">
+        <span class="res-title">HASIL ANALISA HUKUM</span>
+        <div id="resUraian" style="font-size:13px; color:var(--text-dim);"></div>
+    </div>
+
+    <p style="text-align:center; font-size:10px; color:var(--text-dim); margin-top:30px;">Dibuat oleh Adien | raziqothmanalii@gmail.com</p>
+</div>
+
+<script>
+    function fmtRp(e, targetId) {
+        let v = e.value.replace(/[^,\d]/g, '');
+        document.getElementById(targetId).value = v;
+        if (v) e.value = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(v);
+    }
+
+    function openHartaInfo() {
+        document.getElementById('modalTitle').innerText = "Apa itu Harta Bersih?";
+        document.getElementById('modalContent').innerHTML = `
+            Harta bersih adalah harta final yang siap dibagikan ke ahli waris.<br><br>
+            <b>Rumusnya:</b><br>
+            (Total Aset - Hutang) / 2 [Jika ada gono-gini]<br><br>
+            Gunakan tombol "Hitung Harta Bersih" di bawah jika Anda ragu dengan angkanya.
+        `;
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+    function toggleCalcHarta() {
+        const box = document.getElementById('calcHartaBox');
+        box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function setHartaBersih() {
+        const aset = parseFloat(document.getElementById('rawAset').value) || 0;
+        const hutang = parseFloat(document.getElementById('rawHutang').value) || 0;
+        let bersih = aset - hutang;
+        
+        if (document.getElementById('isGonoGini').checked) bersih = bersih / 2;
+        
+        document.getElementById('rawHarta').value = bersih;
+        document.getElementById('dispHarta').value = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(bersih);
+        toggleCalcHarta();
+    }
+
+    function syncUI() {
+        const ak = parseInt(document.getElementById('ak1').value) || 0;
+        const c1 = document.getElementById('check1').checked;
+        const c2 = document.getElementById('check2').checked;
+        const ck = document.getElementById('checkK').checked;
+
+        // Tampilkan input jika dicentang
+        document.getElementById('in1').style.display = c1 ? 'block' : 'none';
+        document.getElementById('in2').style.display = c2 ? 'block' : 'none';
+        document.getElementById('inK').style.display = ck ? 'block' : 'none';
+
+        // Logika Menutup: Jika ada ANAK (GOL I), Gol II & Kloving tertutup
+        if (c1 && ak > 0) {
+            document.getElementById('box2').classList.add('disabled');
+            document.getElementById('boxKloving').classList.add('disabled');
+        } else if (c2) {
+            document.getElementById('boxKloving').classList.add('disabled');
+        } else {
+            document.getElementById('box2').classList.remove('disabled');
+            document.getElementById('boxKloving').classList.remove('disabled');
         }
+    }
 
-        function calculate() {
-            const harta = parseFloat(document.getElementById('rawHarta').value) || 0;
-            if (harta <= 0) return;
+    function mainCalculate() {
+        const harta = parseFloat(document.getElementById('rawHarta').value) || 0;
+        if (harta <= 0) return alert("Masukkan harta peninggalan!");
 
-            const si = parseInt(document.getElementById('valSI').value) || 0;
-            const ak = parseInt(document.getElementById('valAnak').value) || 0;
-            const ot = parseInt(document.getElementById('valOT').value) || 0;
-            const sk = parseInt(document.getElementById('valSK').value) || 0;
-            
-            const f = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
-            const isl = document.getElementById('island');
-            isl.classList.add('island-active');
-            isl.innerText = "KLOVING ANALYSIS IN PROGRESS...";
+        const f = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
+        let u = "";
 
-            setTimeout(() => {
-                let res = "";
+        const c1 = document.getElementById('check1').checked;
+        const c2 = document.getElementById('check2').checked;
+        const ck = document.getElementById('checkK').checked;
 
-                if (ak > 0) {
-                    let p = harta / (si + ak);
-                    res = `Analisa <span class="highlight">Golongan I</span>: Keberadaan anak menutup seluruh garis lainnya. Harta dibagi rata.<br>• Porsi per orang: <span class="highlight">${f(p)}</span>`;
-                } 
-                else if (si > 0 || ot > 0 || sk > 0) {
-                    if (si > 0 && (ot > 0 || sk > 0)) {
-                        let pRata = harta / (si + ot + sk);
-                        let minOT = harta * 0.25;
-                        if (ot > 0 && pRata < minOT) {
-                            let sisa = harta - (minOT * ot);
-                            res = `Analisa <span class="highlight">Mewarisi Bersama</span>: Pasangan berbagi dengan Gol II. Orang tua dijamin hak minimal 1/4.<br>• Orang Tua: <span class="highlight">${f(minOT)}</span><br>• Pasangan & Saudara: <span class="highlight">${f(sisa/(si+sk))}</span>`;
-                        } else {
-                            res = `Harta dibagi rata kepada Pasangan, Orang Tua, dan Saudara sebesar <span class="highlight">${f(pRata)}</span>.`;
-                        }
-                    } else if (si > 0) {
-                        res = `Seluruh harta <span class="highlight">${f(harta)}</span> jatuh ke tangan Pasangan.`;
-                    } else {
-                        let pRata = harta / (ot + sk);
-                        let minOT = harta * 0.25;
-                        if (ot > 0 && pRata < minOT) {
-                            res = `Golongan II: Orang Tua dapat 1/4 (<span class="highlight">${f(minOT)}</span>), sisanya untuk Saudara (<span class="highlight">${f((harta-(minOT*ot))/sk)}</span>).`;
-                        } else {
-                            res = `Harta dibagi rata kepada Golongan II sebesar <span class="highlight">${f(pRata)}</span>.`;
-                        }
-                    }
-                } 
-                else {
-                    // LOGIKA KLOVING BERSAMA
-                    let belah = harta / 2;
-                    let a3 = parseInt(document.getElementById('aG3').value) || 0;
-                    let a4 = parseInt(document.getElementById('aG4').value) || 0;
-                    let i3 = parseInt(document.getElementById('iG3').value) || 0;
-                    let i4 = parseInt(document.getElementById('iG4').value) || 0;
+        const si = parseInt(document.getElementById('si1').value) || 0;
+        const ak = parseInt(document.getElementById('ak1').value) || 0;
+        const ot = parseInt(document.getElementById('ot2').value) || 0;
+        const sk = parseInt(document.getElementById('sk2').value) || 0;
 
-                    res = `Sistem <span class="highlight">Kloving</span> Aktif (Garis Ayah & Ibu):<br><br>`;
-                    
-                    // Sisi Ayah
-                    if (a3 > 0) res += `• Sisi Ayah (Gol III): <span class="highlight">${f(belah/a3)}</span> per orang.<br>`;
-                    else if (a4 > 0) res += `• Sisi Ayah (Gol IV): <span class="highlight">${f(belah/a4)}</span> per orang.<br>`;
-                    else res += `• Sisi Ayah: Tidak ada ahli waris.<br>`;
-
-                    // Sisi Ibu
-                    if (i3 > 0) res += `• Sisi Ibu (Gol III): <span class="highlight">${f(belah/i3)}</span> per orang.<br>`;
-                    else if (i4 > 0) res += `• Sisi Ibu (Gol IV): <span class="highlight">${f(belah/i4)}</span> per orang.<br>`;
-                    else res += `• Sisi Ibu: Tidak ada ahli waris.<br>`;
+        // 1. GOLONGAN I (UTAMA)
+        if (c1 && ak > 0) {
+            let p = harta / (si + ak);
+            u = `Keberadaan <b>Anak Kandung</b> menutup seluruh hak keluarga besar lainnya.<br>Total Ahli Waris: ${si + ak} orang.<br>Bagian per orang: <b style="color:white">${f(p)}</b>`;
+        } 
+        // 2. GOLONGAN II / MEWARISI BERSAMA
+        else if (c1 || c2) {
+            if (si > 0 && (ot > 0 || sk > 0)) {
+                let pRata = harta / (si + ot + sk);
+                let minOT = harta * 0.25;
+                if (ot > 0 && pRata < minOT) {
+                    let sisa = harta - (minOT * ot);
+                    u = `<b>Mewarisi Bersama:</b> Pasangan berbagi dengan Orang Tua/Saudara.<br>• Orang Tua (Min 1/4): ${f(minOT)}<br>• Pasangan & Saudara: ${f(sisa/(si+sk))}`;
+                } else {
+                    u = `Harta dibagi rata kepada Pasangan, Ortu, dan Saudara sebesar <b style="color:white">${f(pRata)}</b>.`;
                 }
-
-                document.getElementById('uraian').innerHTML = res;
-                document.getElementById('resArea').style.display = 'block';
-                isl.innerText = "SUCCESS ✨";
-                setTimeout(() => { isl.classList.remove('island-active'); isl.innerText = "WARIS LOGIC"; }, 1500);
-            }, 1000);
+            } else if (si > 0) {
+                u = `Seluruh harta jatuh ke <b>Pasangan</b> sebesar ${f(harta)}.`;
+            } else {
+                let pRata = harta / (ot + sk);
+                let minOT = harta * 0.25;
+                if (ot > 0 && pRata < minOT) {
+                    u = `Gol II: Orang Tua dapat 1/4 (${f(minOT)}), sisanya untuk Saudara.`;
+                } else {
+                    u = `Gol II: Dibagi rata sebesar ${f(pRata)} per orang.`;
+                }
+            }
         }
-    </script>
+        // 3. KLOVING (GOL III & IV)
+        else if (ck) {
+            let belah = harta / 2;
+            let a3 = parseInt(document.getElementById('a3').value) || 0;
+            let a4 = parseInt(document.getElementById('a4').value) || 0;
+            let i3 = parseInt(document.getElementById('i3').value) || 0;
+            let i4 = parseInt(document.getElementById('i4').value) || 0;
+
+            u = `<b>Sistem Kloving:</b> Harta dibelah 50:50 untuk garis Ayah & Ibu.<br><br>`;
+            u += `• Garis Ayah: ` + (a3 > 0 ? `${f(belah/a3)} (Gol III)` : (a4 > 0 ? `${f(belah/a4)} (Gol IV)` : "Kosong")) + `<br>`;
+            u += `• Garis Ibu: ` + (i3 > 0 ? `${f(belah/i3)} (Gol III)` : (i4 > 0 ? `${f(belah/i4)} (Gol IV)` : "Kosong"));
+        }
+
+        document.getElementById('resUraian').innerHTML = u || "Pilih kategori ahli waris.";
+        document.getElementById('resBox').style.display = 'block';
+    }
+</script>
 </body>
 </html>
