@@ -18,36 +18,37 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
 
-        .container { background: var(--card-color); padding: 30px; border-radius: 32px; width: 100%; max-width: 480px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .container { background: var(--card-color); padding: 30px; border-radius: 32px; width: 100%; max-width: 500px; border: 1px solid var(--border); }
         
         .header { text-align: center; margin-bottom: 25px; }
         .header h1 { font-size: 20px; font-weight: 700; color: var(--accent-gold); }
-        .header p { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
+        .header p { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
 
         .field { margin-bottom: 20px; }
-        label { font-size: 12px; color: var(--text-dim); display: block; margin-bottom: 8px; }
+        .label-row { display: flex; align-items: center; margin-bottom: 8px; }
+        label { font-size: 12px; color: var(--text-dim); }
         
         input[type="text"], input[type="number"] { 
             width: 100%; padding: 12px; border: 1px solid #444; border-radius: 12px; 
             background: #000; color: white; outline: none; font-size: 15px; 
         }
 
-        .gol-box { 
-            border: 1px solid #333; padding: 15px; border-radius: 20px; margin-bottom: 12px;
-            transition: 0.3s; position: relative;
-        }
-        .gol-box.disabled { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
-
-        .check-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-        .check-left { display: flex; align-items: center; gap: 10px; }
-        
-        input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-blue); cursor: pointer; }
-
         .hint {
             display: inline-flex; width: 16px; height: 16px; background: #333; 
             border-radius: 50%; font-size: 10px; align-items: center; justify-content: center;
-            cursor: pointer; color: var(--accent-gold); border: 1px solid var(--accent-gold);
+            cursor: pointer; color: var(--accent-gold); border: 1px solid var(--accent-gold); margin-left: 8px;
         }
+
+        .category-box { 
+            border: 1px solid #333; padding: 15px; border-radius: 20px; margin-bottom: 12px;
+            transition: 0.3s;
+        }
+        .category-box.disabled { opacity: 0.2; pointer-events: none; filter: grayscale(1); }
+
+        .check-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-blue); }
+
+        .sub-input { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
 
         .btn-calc { 
             width: 100%; padding: 16px; background: var(--accent-blue); 
@@ -55,19 +56,21 @@
             cursor: pointer; margin-top: 10px; 
         }
 
-        .results { margin-top: 25px; display: none; animation: slideUp 0.4s; }
+        .results { margin-top: 25px; display: none; animation: slideUp 0.4s ease; }
         @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        .summary { background: rgba(78, 149, 255, 0.1); padding: 15px; border-radius: 15px; text-align: center; margin-bottom: 15px; border: 1px solid var(--accent-blue); }
-        .row { display: flex; justify-content: space-between; padding: 12px 0; font-size: 13px; border-bottom: 1px solid #333; }
-        
+        .uraian-card { background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 20px; border: 1px solid var(--border); line-height: 1.6; }
+        .uraian-title { color: var(--accent-gold); font-size: 14px; font-weight: 700; margin-bottom: 10px; display: block; }
+        .uraian-text { font-size: 13px; color: var(--text-dim); }
+        .highlight { color: #fff; font-weight: 600; }
+
         /* Modal Info */
         .modal { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); 
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); 
             display: none; align-items: center; justify-content: center; z-index: 100;
         }
-        .modal-content { background: var(--card-color); padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; border: 1px solid #444; }
+        .modal-content { background: var(--card-color); padding: 25px; border-radius: 24px; width: 85%; max-width: 350px; border: 1px solid #444; }
     </style>
 </head>
 <body>
@@ -75,103 +78,104 @@
     <div class="modal" id="modal">
         <div class="modal-content">
             <h3 id="modalTitle" style="color: var(--accent-gold); margin-bottom: 10px;"></h3>
-            <p id="modalText" style="font-size: 14px; color: var(--text-dim); line-height: 1.5;"></p>
-            <button onclick="closeModal()" style="margin-top: 20px; width: 100%; padding: 10px; border-radius: 10px; border: none; background: #fff; cursor: pointer;">Tutup</button>
+            <p id="modalText" style="font-size: 13px; color: var(--text-dim); line-height: 1.6;"></p>
+            <button onclick="closeModal()" style="margin-top: 20px; width: 100%; padding: 12px; border-radius: 100px; border: none; background: #fff; font-weight: 600; cursor: pointer;">Mengerti</button>
         </div>
     </div>
 
     <div class="container">
         <div class="header">
             <h1>Kalkulator Waris Perdata</h1>
-            <p>Adien Edition - KUHPer</p>
+            <p>Sistem Ahli Waris KUHPer</p>
         </div>
 
         <div class="field">
-            <label>Total Harta Warisan</label>
+            <div class="label-row">
+                <label>Total Harta Peninggalan Bersih</label>
+                <div class="hint" onclick="showInfo('harta')">?</div>
+            </div>
             <input type="text" id="dispHarta" placeholder="Rp 0" oninput="fmtRp(this)">
             <input type="hidden" id="rawHarta">
         </div>
 
-        <div id="golGroup">
-            <div class="gol-box" id="box1">
+        <div id="formGroup">
+            <div class="category-box" id="box1">
                 <div class="check-row">
-                    <div class="check-left">
-                        <input type="checkbox" id="check1" onchange="toggleGols()">
-                        <span style="font-size: 13px; font-weight: 600;">Golongan I</span>
-                        <div class="hint" onclick="showInfo(1)">?</div>
-                    </div>
+                    <input type="checkbox" id="check1" onchange="toggleForm()">
+                    <span style="font-size: 14px; font-weight: 600;">Keluarga Inti (Gol. I)</span>
+                    <div class="hint" onclick="showInfo(1)">?</div>
                 </div>
-                <div id="input1" style="display: none; margin-top: 10px;">
-                    <label>Jumlah Orang (Suami/Istri + Anak):</label>
-                    <input type="number" id="val1" value="0" min="0">
+                <div id="input1" style="display: none;">
+                    <div class="sub-input">
+                        <div>
+                            <label style="font-size: 10px;">Suami/Istri</label>
+                            <input type="number" id="si1" value="0" min="0">
+                        </div>
+                        <div>
+                            <label style="font-size: 10px;">Anak Kandung</label>
+                            <input type="number" id="ak1" value="0" min="0">
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="gol-box" id="box2">
+            <div class="category-box" id="box2">
                 <div class="check-row">
-                    <div class="check-left">
-                        <input type="checkbox" id="check2" onchange="toggleGols()">
-                        <span style="font-size: 13px; font-weight: 600;">Golongan II</span>
-                        <div class="hint" onclick="showInfo(2)">?</div>
-                    </div>
+                    <input type="checkbox" id="check2" onchange="toggleForm()">
+                    <span style="font-size: 14px; font-weight: 600;">Orang Tua & Saudara (Gol. II)</span>
+                    <div class="hint" onclick="showInfo(2)">?</div>
                 </div>
-                <div id="input2" style="display: none; margin-top: 10px;">
-                    <label>Jumlah Orang (Orang Tua + Saudara):</label>
-                    <input type="number" id="val2" value="0" min="0">
+                <div id="input2" style="display: none;">
+                    <div class="sub-input">
+                        <div>
+                            <label style="font-size: 10px;">Orang Tua</label>
+                            <input type="number" id="ot2" value="0" min="0" max="2">
+                        </div>
+                        <div>
+                            <label style="font-size: 10px;">Saudara Kandung</label>
+                            <input type="number" id="sk2" value="0" min="0">
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="gol-box" id="box3">
+            <div class="category-box" id="box3">
                 <div class="check-row">
-                    <div class="check-left">
-                        <input type="checkbox" id="check3" onchange="toggleGols()">
-                        <span style="font-size: 13px; font-weight: 600;">Golongan III</span>
-                        <div class="hint" onclick="showInfo(3)">?</div>
-                    </div>
-                </div>
-                <div id="input3" style="display: none; margin-top: 10px;">
-                    <label>Jumlah Orang (Kakek/Nenek):</label>
-                    <input type="number" id="val3" value="0" min="0">
+                    <input type="checkbox" id="check3" onchange="toggleForm()">
+                    <span style="font-size: 14px; font-weight: 600;">Kakek & Nenek (Gol. III)</span>
                 </div>
             </div>
 
-            <div class="gol-box" id="box4">
+            <div class="category-box" id="box4">
                 <div class="check-row">
-                    <div class="check-left">
-                        <input type="checkbox" id="check4" onchange="toggleGols()">
-                        <span style="font-size: 13px; font-weight: 600;">Golongan IV</span>
-                        <div class="hint" onclick="showInfo(4)">?</div>
-                    </div>
-                </div>
-                <div id="input4" style="display: none; margin-top: 10px;">
-                    <label>Jumlah Orang (Paman/Bibi/Sepupu):</label>
-                    <input type="number" id="val4" value="0" min="0">
+                    <input type="checkbox" id="check4" onchange="toggleForm()">
+                    <span style="font-size: 14px; font-weight: 600;">Keluarga Terdekat Lain (Gol. IV)</span>
+                    <div class="hint" onclick="showInfo(4)">?</div>
                 </div>
             </div>
         </div>
 
-        <button class="btn-calc" onclick="hitung()">Hitung Pembagian</button>
+        <button class="btn-calc" onclick="hitungWaris()">HITUNG Rincian</button>
 
         <div id="results" class="results">
-            <div class="summary">
-                <p style="font-size: 11px; color: var(--text-main);">Porsi Per Orang</p>
-                <div id="resPorsi" style="font-size: 24px; font-weight: 700; color: #fff;"></div>
+            <div class="uraian-card">
+                <span class="uraian-title">Uraian Pembagian Waris</span>
+                <div class="uraian-text" id="uraianContent"></div>
             </div>
-            <div id="resDetail"></div>
         </div>
     </div>
 
     <script>
-        const infoData = {
-            1: ["Golongan I", "Terdiri dari Suami/Istri yang hidup terlama dan anak-anak beserta keturunannya. Mereka membagi harta dalam bagian yang sama besar."],
-            2: ["Golongan II", "Jika Golongan I tidak ada. Terdiri dari Orang Tua dan Saudara kandung. Orang tua memiliki hak minimal 1/4 bagian."],
-            3: ["Golongan III", "Jika Golongan I & II tidak ada. Terdiri dari Kakek, Nenek, atau leluhur ke atas baik dari garis ayah maupun ibu."],
-            4: ["Golongan IV", "Jika Golongan I, II, & III tidak ada. Terdiri dari paman, bibi, dan keturunan mereka hingga derajat ke-6."]
+        const info = {
+            'harta': ["Harta Peninggalan", "Harta yang dimasukkan harus sudah dikurangi biaya utang, biaya pemakaman, atau porsi harta gono-gini milik pasangan."],
+            1: ["Keluarga Inti", "Pasangan hidup dan anak-anak berbagi rata. Jika ada mereka, keluarga besar lainnya tidak mendapat warisan."],
+            2: ["Orang Tua & Saudara", "Digunakan jika tidak ada pasangan/anak. Orang tua minimal mendapat 1/4 bagian."],
+            4: ["Keluarga Lain", "Keluarga sedarah dalam garis menyamping seperti paman, bibi, dan keturunannya."]
         };
 
-        function showInfo(id) {
-            document.getElementById('modalTitle').innerText = infoData[id][0];
-            document.getElementById('modalText').innerText = infoData[id][1];
+        function showInfo(key) {
+            document.getElementById('modalTitle').innerText = info[key][0];
+            document.getElementById('modalText').innerText = info[key][1];
             document.getElementById('modal').style.display = 'flex';
         }
         function closeModal() { document.getElementById('modal').style.display = 'none'; }
@@ -182,54 +186,63 @@
             if (v) e.value = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(v);
         }
 
-        function toggleGols() {
+        function toggleForm() {
+            let found = false;
             for (let i = 1; i <= 4; i++) {
                 let check = document.getElementById('check' + i);
-                let inputDiv = document.getElementById('input' + i);
                 let box = document.getElementById('box' + i);
-
-                // Tampilkan input jika dicentang
-                inputDiv.style.display = check.checked ? 'block' : 'none';
-
-                // Logika menutup: Jika Gol sebelumnya dicentang, matikan setelahnya
-                let earlierChecked = false;
-                for (let j = 1; j < i; j++) {
-                    if (document.getElementById('check' + j).checked) earlierChecked = true;
-                }
-
-                if (earlierChecked) {
+                let input = document.getElementById('input' + i);
+                
+                if (found) {
                     box.classList.add('disabled');
                     check.checked = false;
-                    inputDiv.style.display = 'none';
                 } else {
                     box.classList.remove('disabled');
                 }
+                
+                if (input) input.style.display = check.checked ? 'block' : 'none';
+                if (check.checked) found = true;
             }
         }
 
-        function hitung() {
+        function hitungWaris() {
             const harta = parseFloat(document.getElementById('rawHarta').value) || 0;
             const f = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
-            
-            let porsi = 0;
-            let ket = "";
+            let content = "";
 
-            for (let i = 1; i <= 4; i++) {
-                if (document.getElementById('check' + i).checked) {
-                    let jml = parseInt(document.getElementById('val' + i).value) || 0;
-                    if (jml > 0) {
-                        porsi = harta / jml;
-                        ket = "Dibagikan kepada " + jml + " orang Ahli Waris Golongan " + i;
-                        break;
-                    }
+            if (document.getElementById('check1').checked) {
+                let si = parseInt(document.getElementById('si1').value) || 0;
+                let ak = parseInt(document.getElementById('ak1').value) || 0;
+                let total = si + ak;
+                if (total > 0) {
+                    let porsi = harta / total;
+                    content = `Karena terdapat Ahli Waris Golongan I, maka harta dibagi rata kepada <span class="highlight">${total} orang</span>. Masing-masing (Pasangan/Anak) mendapatkan <span class="highlight">${f(porsi)}</span>.`;
+                }
+            } 
+            else if (document.getElementById('check2').checked) {
+                let ot = parseInt(document.getElementById('ot2').value) || 0;
+                let sk = parseInt(document.getElementById('sk2').value) || 0;
+                
+                // Logika KUHPer: Orang tua minimal dapat 1/4 per orang
+                let porsiOT = harta / (ot + sk);
+                let minimalOT = harta * 0.25;
+                
+                if (porsiOT < minimalOT && ot > 0) {
+                    let totalPorsiOT = minimalOT * ot;
+                    let sisaHarta = harta - totalPorsiOT;
+                    let porsiSK = sisaHarta / sk;
+                    content = `Sesuai KUHPer, Orang Tua berhak minimal <span class="highlight">1/4 bagian</span>. <br><br>• Masing-masing Orang Tua: <span class="highlight">${f(minimalOT)}</span><br>• Masing-masing Saudara: <span class="highlight">${f(porsiSK)}</span>`;
+                } else {
+                    let rata = harta / (ot + sk);
+                    content = `Harta dibagi rata kepada Orang Tua dan Saudara. <br><br>• Masing-masing mendapatkan <span class="highlight">${f(rata)}</span>.`;
                 }
             }
-
-            if (porsi > 0) {
-                document.getElementById('resPorsi').innerText = f(porsi);
-                document.getElementById('resDetail').innerHTML = `<div class="row"><span>Keterangan</span><span style="text-align:right">${ket}</span></div>`;
-                document.getElementById('results').style.display = 'block';
+            else if (document.getElementById('check3').checked || document.getElementById('check4').checked) {
+                content = `Harta akan dibagi kepada garis keluarga yang masih tersedia sesuai porsi yang ditentukan undang-undang.`;
             }
+
+            document.getElementById('uraianContent').innerHTML = content || "Mohon isi data ahli waris terlebih dahulu.";
+            document.getElementById('results').style.display = 'block';
         }
     </script>
 </body>
