@@ -23,26 +23,26 @@
             background: var(--bg-color); 
             color: var(--text-main); 
             display: flex; align-items: center; justify-content: center; 
-            min-height: 100vh; overflow-x: hidden;
+            min-height: 100vh; overflow: hidden;
         }
 
         /* DYNAMIC ISLAND */
         .island {
-            width: 120px; height: 32px; background: var(--island-bg);
+            width: 130px; height: 32px; background: var(--island-bg);
             border-radius: 100px; margin: 0 auto 25px;
             display: flex; align-items: center; justify-content: center;
             color: white; font-size: 10px; font-weight: 600; letter-spacing: 1px;
             transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative; overflow: hidden;
+            position: relative;
         }
         .island-active { width: 240px; height: 38px; background: linear-gradient(90deg, #b388ff, #4e95ff); }
 
         /* FLOATING OVERLAY */
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(15px);
+            background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px);
             z-index: 9999; display: flex; align-items: center; justify-content: center;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.4s ease, visibility 0.4s;
         }
 
         .modal {
@@ -58,11 +58,11 @@
         /* MAIN CONTAINER */
         .container { 
             background: var(--card-color); padding: 30px; border-radius: 35px; 
-            width: 92%; max-width: 480px; border: 1px solid var(--border); 
-            max-height: 90vh; display: flex; flex-direction: column;
+            width: 92%; max-width: 480px; height: 90vh; border: 1px solid var(--border); 
+            display: flex; flex-direction: column;
         }
 
-        .scroll-area { overflow-y: auto; flex-grow: 1; padding-right: 5px; }
+        .scroll-area { overflow-y: auto; flex-grow: 1; padding-right: 8px; }
         .scroll-area::-webkit-scrollbar { width: 4px; }
         .scroll-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 
@@ -78,7 +78,7 @@
         }
 
         .hint {
-            width: 16px; height: 16px; background: #333; border: 1px solid var(--accent-gold);
+            width: 18px; height: 18px; background: #333; border: 1px solid var(--accent-gold);
             border-radius: 50%; font-size: 10px; margin-left: 8px;
             display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--accent-gold);
         }
@@ -86,7 +86,7 @@
         .category-box { border: 1px solid #333; padding: 18px; border-radius: 22px; margin-bottom: 12px; transition: 0.3s; }
         .category-box.disabled { opacity: 0.2; pointer-events: none; filter: grayscale(1); }
         .check-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-        input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-blue); }
+        input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent-blue); cursor: pointer; }
 
         .btn-calc { width: 100%; padding: 16px; background: var(--accent-blue); color: white; border: none; border-radius: 100px; font-weight: 700; cursor: pointer; margin-top: 10px; }
 
@@ -107,7 +107,7 @@
         </div>
     </div>
 
-    <div id="infoPop" class="overlay" style="display: none; opacity: 0;">
+    <div id="infoPop" class="overlay" style="display: none; opacity: 0; visibility: hidden;">
         <div class="modal">
             <h3 id="infoTitle" style="color: var(--accent-gold); margin-bottom: 10px;"></h3>
             <p id="infoText"></p>
@@ -136,7 +136,7 @@
                         <span style="font-weight: 600;">Keluarga Inti (Gol. I)</span>
                         <div class="hint" onclick="openInfo(1)">?</div>
                     </div>
-                    <div id="in1" style="display:none; gap:10px;" class="sub-input">
+                    <div id="in1" style="display:none;">
                         <input type="number" id="si1" placeholder="Pasangan (Istri/Suami)" style="margin-bottom:8px">
                         <input type="number" id="ak1" placeholder="Jumlah Anak">
                     </div>
@@ -169,14 +169,14 @@
                 </div>
             </div>
 
-            <button class="btn-calc" onclick="calculate()">HITUNG URUAIAN</button>
+            <button class="btn-calc" onclick="calculate()">HITUNG RINCIAN</button>
 
             <div id="resArea" class="results">
                 <div class="uraian-card">
                     <div id="uraianContent" style="font-size: 14px; color: var(--text-dim);"></div>
                 </div>
             </div>
-            <div style="height: 20px;"></div>
+            <div style="height: 30px;"></div>
         </div>
     </div>
 
@@ -184,4 +184,107 @@
         const infoData = {
             'harta': ["Harta Bersih", "Total harta setelah dikurangi utang jenazah, biaya pemakaman, dan bagian harta gono-gini pasangan."],
             1: ["Golongan I", "Terdiri dari Pasangan (Suami/Istri) dan Anak-anak. Mereka berbagi harta sama besar dan menutup hak golongan lain."],
-            2: ["Golongan II", "Terdiri dari Orang Tua dan Saudara.
+            2: ["Golongan II", "Terdiri dari Orang Tua dan Saudara. Sesuai hukum, porsi Orang Tua minimal adalah 1/4 bagian harta."]
+        };
+
+        function openInfo(k) {
+            document.getElementById('infoTitle').innerText = infoData[k][0];
+            document.getElementById('infoText').innerText = infoData[k][1];
+            const e = document.getElementById('infoPop');
+            e.style.display = 'flex';
+            e.style.visibility = 'visible';
+            setTimeout(() => e.style.opacity = '1', 10);
+        }
+
+        function closeM(id) {
+            const e = document.getElementById(id);
+            e.style.opacity = '0';
+            setTimeout(() => {
+                e.style.display = 'none';
+                e.style.visibility = 'hidden';
+            }, 400);
+        }
+
+        function fmtRp(e) {
+            let v = e.value.replace(/[^,\d]/g, '');
+            document.getElementById('rawHarta').value = v;
+            if (v) e.value = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(v);
+        }
+
+        function sync() {
+            let found = false;
+            for (let i = 1; i <= 4; i++) {
+                let ck = document.getElementById('check' + i);
+                let bx = document.getElementById('box' + i);
+                let inpt = document.getElementById('in' + i);
+                
+                if (found) {
+                    bx.classList.add('disabled');
+                    ck.checked = false;
+                    if (inpt) inpt.style.display = 'none';
+                } else {
+                    bx.classList.remove('disabled');
+                    if (inpt) inpt.style.display = ck.checked ? 'block' : 'none';
+                }
+                
+                if (ck.checked) found = true;
+            }
+        }
+
+        // Support Enter key for calculation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') calculate();
+        });
+
+        function calculate() {
+            const harta = parseFloat(document.getElementById('rawHarta').value) || 0;
+            const isl = document.getElementById('island');
+            const f = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
+
+            if (harta <= 0) {
+                isl.innerText = "INPUT HARGA";
+                isl.style.color = "#ff4e4e";
+                setTimeout(() => { isl.innerText = "WARIS SYSTEM"; isl.style.color = "white"; }, 2000);
+                return;
+            }
+
+            isl.classList.add('island-active');
+            isl.innerText = "ANALYZING LAYERS...";
+
+            setTimeout(() => {
+                let content = "";
+                if (document.getElementById('check1').checked) {
+                    let total = (parseInt(document.getElementById('si1').value) || 0) + (parseInt(document.getElementById('ak1').value) || 0);
+                    if (total > 0) {
+                        content = `Berdasarkan KUHPerdata, Ahli Waris <span class="highlight">Golongan I</span> membagi harta sama besar. <br><br>• Total Ahli Waris: ${total} orang<br>• Masing-masing: <span class="highlight">${f(harta/total)}</span>.`;
+                    }
+                } else if (document.getElementById('check2').checked) {
+                    let ot = parseInt(document.getElementById('ot2').value) || 0;
+                    let sk = parseInt(document.getElementById('sk2').value) || 0;
+                    if ((ot + sk) > 0) {
+                        let porsiNormal = harta / (ot + sk);
+                        let minOT = harta * 0.25;
+
+                        if (ot > 0 && porsiNormal < minOT) {
+                            let sisa = harta - (minOT * ot);
+                            content = `Sesuai aturan minimal 1/4, <span class="highlight">Orang Tua</span> mendapatkan ${f(minOT)} per orang. Sisa harta dibagikan kepada saudara masing-masing <span class="highlight">${f(sisa/sk)}</span>.`;
+                        } else {
+                            content = `Harta dibagi rata kepada Orang Tua dan Saudara masing-masing sebesar <span class="highlight">${f(porsiNormal)}</span>.`;
+                        }
+                    }
+                } else {
+                    content = "Harta akan dibagikan ke Golongan III atau IV sesuai garis keturunan yang tersedia.";
+                }
+
+                document.getElementById('uraianContent').innerHTML = content || "Mohon isi jumlah ahli waris.";
+                document.getElementById('resArea').style.display = 'block';
+                isl.innerText = "SUCCESS ✨";
+                setTimeout(() => { 
+                    isl.classList.remove('island-active'); 
+                    isl.innerText = "WARIS SYSTEM"; 
+                }, 1500);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
