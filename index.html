@@ -1,0 +1,236 @@
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kalkulator Waris Perdata - Adien</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f0f10;
+            --card-color: #1c1c1e;
+            --accent-gold: #ffd700;
+            --accent-blue: #4e95ff;
+            --text-main: #e3e3e3;
+            --text-dim: #b4b4b4;
+            --border: #333333;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+
+        .container { background: var(--card-color); padding: 30px; border-radius: 32px; width: 100%; max-width: 480px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        
+        .header { text-align: center; margin-bottom: 25px; }
+        .header h1 { font-size: 20px; font-weight: 700; color: var(--accent-gold); }
+        .header p { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
+
+        .field { margin-bottom: 20px; }
+        label { font-size: 12px; color: var(--text-dim); display: block; margin-bottom: 8px; }
+        
+        input[type="text"], input[type="number"] { 
+            width: 100%; padding: 12px; border: 1px solid #444; border-radius: 12px; 
+            background: #000; color: white; outline: none; font-size: 15px; 
+        }
+
+        .gol-box { 
+            border: 1px solid #333; padding: 15px; border-radius: 20px; margin-bottom: 12px;
+            transition: 0.3s; position: relative;
+        }
+        .gol-box.disabled { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
+
+        .check-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .check-left { display: flex; align-items: center; gap: 10px; }
+        
+        input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-blue); cursor: pointer; }
+
+        .hint {
+            display: inline-flex; width: 16px; height: 16px; background: #333; 
+            border-radius: 50%; font-size: 10px; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--accent-gold); border: 1px solid var(--accent-gold);
+        }
+
+        .btn-calc { 
+            width: 100%; padding: 16px; background: var(--accent-blue); 
+            color: white; border: none; border-radius: 100px; font-weight: 700; 
+            cursor: pointer; margin-top: 10px; 
+        }
+
+        .results { margin-top: 25px; display: none; animation: slideUp 0.4s; }
+        @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .summary { background: rgba(78, 149, 255, 0.1); padding: 15px; border-radius: 15px; text-align: center; margin-bottom: 15px; border: 1px solid var(--accent-blue); }
+        .row { display: flex; justify-content: space-between; padding: 12px 0; font-size: 13px; border-bottom: 1px solid #333; }
+        
+        /* Modal Info */
+        .modal { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); 
+            display: none; align-items: center; justify-content: center; z-index: 100;
+        }
+        .modal-content { background: var(--card-color); padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; border: 1px solid #444; }
+    </style>
+</head>
+<body>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle" style="color: var(--accent-gold); margin-bottom: 10px;"></h3>
+            <p id="modalText" style="font-size: 14px; color: var(--text-dim); line-height: 1.5;"></p>
+            <button onclick="closeModal()" style="margin-top: 20px; width: 100%; padding: 10px; border-radius: 10px; border: none; background: #fff; cursor: pointer;">Tutup</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Kalkulator Waris Perdata</h1>
+            <p>Adien Edition - KUHPer</p>
+        </div>
+
+        <div class="field">
+            <label>Total Harta Warisan</label>
+            <input type="text" id="dispHarta" placeholder="Rp 0" oninput="fmtRp(this)">
+            <input type="hidden" id="rawHarta">
+        </div>
+
+        <div id="golGroup">
+            <div class="gol-box" id="box1">
+                <div class="check-row">
+                    <div class="check-left">
+                        <input type="checkbox" id="check1" onchange="toggleGols()">
+                        <span style="font-size: 13px; font-weight: 600;">Golongan I</span>
+                        <div class="hint" onclick="showInfo(1)">?</div>
+                    </div>
+                </div>
+                <div id="input1" style="display: none; margin-top: 10px;">
+                    <label>Jumlah Orang (Suami/Istri + Anak):</label>
+                    <input type="number" id="val1" value="0" min="0">
+                </div>
+            </div>
+
+            <div class="gol-box" id="box2">
+                <div class="check-row">
+                    <div class="check-left">
+                        <input type="checkbox" id="check2" onchange="toggleGols()">
+                        <span style="font-size: 13px; font-weight: 600;">Golongan II</span>
+                        <div class="hint" onclick="showInfo(2)">?</div>
+                    </div>
+                </div>
+                <div id="input2" style="display: none; margin-top: 10px;">
+                    <label>Jumlah Orang (Orang Tua + Saudara):</label>
+                    <input type="number" id="val2" value="0" min="0">
+                </div>
+            </div>
+
+            <div class="gol-box" id="box3">
+                <div class="check-row">
+                    <div class="check-left">
+                        <input type="checkbox" id="check3" onchange="toggleGols()">
+                        <span style="font-size: 13px; font-weight: 600;">Golongan III</span>
+                        <div class="hint" onclick="showInfo(3)">?</div>
+                    </div>
+                </div>
+                <div id="input3" style="display: none; margin-top: 10px;">
+                    <label>Jumlah Orang (Kakek/Nenek):</label>
+                    <input type="number" id="val3" value="0" min="0">
+                </div>
+            </div>
+
+            <div class="gol-box" id="box4">
+                <div class="check-row">
+                    <div class="check-left">
+                        <input type="checkbox" id="check4" onchange="toggleGols()">
+                        <span style="font-size: 13px; font-weight: 600;">Golongan IV</span>
+                        <div class="hint" onclick="showInfo(4)">?</div>
+                    </div>
+                </div>
+                <div id="input4" style="display: none; margin-top: 10px;">
+                    <label>Jumlah Orang (Paman/Bibi/Sepupu):</label>
+                    <input type="number" id="val4" value="0" min="0">
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-calc" onclick="hitung()">Hitung Pembagian</button>
+
+        <div id="results" class="results">
+            <div class="summary">
+                <p style="font-size: 11px; color: var(--text-main);">Porsi Per Orang</p>
+                <div id="resPorsi" style="font-size: 24px; font-weight: 700; color: #fff;"></div>
+            </div>
+            <div id="resDetail"></div>
+        </div>
+    </div>
+
+    <script>
+        const infoData = {
+            1: ["Golongan I", "Terdiri dari Suami/Istri yang hidup terlama dan anak-anak beserta keturunannya. Mereka membagi harta dalam bagian yang sama besar."],
+            2: ["Golongan II", "Jika Golongan I tidak ada. Terdiri dari Orang Tua dan Saudara kandung. Orang tua memiliki hak minimal 1/4 bagian."],
+            3: ["Golongan III", "Jika Golongan I & II tidak ada. Terdiri dari Kakek, Nenek, atau leluhur ke atas baik dari garis ayah maupun ibu."],
+            4: ["Golongan IV", "Jika Golongan I, II, & III tidak ada. Terdiri dari paman, bibi, dan keturunan mereka hingga derajat ke-6."]
+        };
+
+        function showInfo(id) {
+            document.getElementById('modalTitle').innerText = infoData[id][0];
+            document.getElementById('modalText').innerText = infoData[id][1];
+            document.getElementById('modal').style.display = 'flex';
+        }
+        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+        function fmtRp(e) {
+            let v = e.value.replace(/[^,\d]/g, '');
+            document.getElementById('rawHarta').value = v;
+            if (v) e.value = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(v);
+        }
+
+        function toggleGols() {
+            for (let i = 1; i <= 4; i++) {
+                let check = document.getElementById('check' + i);
+                let inputDiv = document.getElementById('input' + i);
+                let box = document.getElementById('box' + i);
+
+                // Tampilkan input jika dicentang
+                inputDiv.style.display = check.checked ? 'block' : 'none';
+
+                // Logika menutup: Jika Gol sebelumnya dicentang, matikan setelahnya
+                let earlierChecked = false;
+                for (let j = 1; j < i; j++) {
+                    if (document.getElementById('check' + j).checked) earlierChecked = true;
+                }
+
+                if (earlierChecked) {
+                    box.classList.add('disabled');
+                    check.checked = false;
+                    inputDiv.style.display = 'none';
+                } else {
+                    box.classList.remove('disabled');
+                }
+            }
+        }
+
+        function hitung() {
+            const harta = parseFloat(document.getElementById('rawHarta').value) || 0;
+            const f = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
+            
+            let porsi = 0;
+            let ket = "";
+
+            for (let i = 1; i <= 4; i++) {
+                if (document.getElementById('check' + i).checked) {
+                    let jml = parseInt(document.getElementById('val' + i).value) || 0;
+                    if (jml > 0) {
+                        porsi = harta / jml;
+                        ket = "Dibagikan kepada " + jml + " orang Ahli Waris Golongan " + i;
+                        break;
+                    }
+                }
+            }
+
+            if (porsi > 0) {
+                document.getElementById('resPorsi').innerText = f(porsi);
+                document.getElementById('resDetail').innerHTML = `<div class="row"><span>Keterangan</span><span style="text-align:right">${ket}</span></div>`;
+                document.getElementById('results').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
